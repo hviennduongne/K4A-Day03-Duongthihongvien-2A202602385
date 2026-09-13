@@ -99,7 +99,7 @@ Dưới đây là ba sự kiện TC04 trích nguyên từ trace: tra cứu sinh 
 - **Tổng số Test Cases đạt hành vi gọi tool:** **5 / 5** (đánh giá thủ công theo log; giới hạn kiểm chứng TC01 được nêu bên dưới).
 - **Số lượt gọi Tool qua MCP Server chính xác:** **5 lượt** — 3 lượt `academic_query` và 2 lượt `schedule_appointment`.
 - **Số sự kiện Waterfall Trace:** **10 sự kiện**.
-- [ ] Đã Commit và Push mã nguồn thành công lên GitHub cá nhân.
+- [x] Đã Commit và Push mã nguồn thành công lên GitHub cá nhân (commit bài làm: `d3259a4`).
 - [ ] Đã nộp đường link repository lên LMS VLearn.
 
 | Test Case | Kết quả quan sát | Đánh giá |
@@ -114,7 +114,7 @@ Dưới đây là ba sự kiện TC04 trích nguyên từ trace: tra cứu sinh 
 
 **Bài học rút ra:** Agent phù hợp với yêu cầu cần tra cứu dữ liệu rồi hành động dựa trên kết quả. Việc duy trì Observation giữa các vòng và xử lý lỗi API quyết định độ tin cậy của luồng đa bước. Trace giúp kiểm tra công cụ, tham số, kết quả và điểm dừng, thay vì chỉ dựa vào câu trả lời cuối.
 
-**Trạng thái nộp bài:** Báo cáo đã ghi nhận kết quả nghiệm thu. Repo hiện còn các thay đổi chưa commit; chưa đánh dấu hoàn tất commit/push hoặc nộp LMS.
+**Trạng thái nộp bài:** Đã push bài làm lên nhánh `main` của [repository GitHub cá nhân](https://github.com/hviennduongne/K4A-Day03-Duongthihongvien-2A202602385). Còn bước dán link repository và xác nhận nộp trên LMS VLearn.
 
 ---
 
