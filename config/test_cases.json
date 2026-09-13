@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC01",
+    "type": "direct_query",
+    "question": "Chào bạn, bạn có thể giới thiệu quy chế học vụ cơ bản của Đại học VinUni không?",
+    "expected_behavior": "Chatbot trả lời trực tiếp từ System Prompt, không cần gọi bất kỳ Tool nào.",
+    "complexity": "Low"
+  },
+  {
+    "id": "TC02",
+    "type": "single_tool_query",
+    "question": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
+    "expected_behavior": "Agent nhận diện nhu cầu tra cứu, tự động phát sinh Tool Call 'academic_query' với mã SV2026001.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC03",
+    "type": "appointment_booking",
+    "question": "Hãy đặt lịch tư vấn học vụ cho sinh viên SV2026001 với PGS.TS Nguyễn Văn A vào lúc 14:00 ngày 15/09/2026.",
+    "expected_behavior": "Agent tự động gọi schedule_appointment với student_id là SV2026001, datetime_str là 14:00 ngày 15/09/2026 và advisor_name là PGS.TS Nguyễn Văn A.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC04",
+    "type": "multi_step_reasoning",
+    "question": "Hãy tra cứu cố vấn học tập của sinh viên SV2026002, sau đó đặt lịch tư vấn cho sinh viên này với đúng cố vấn vừa tìm được vào lúc 09:00 ngày 16/09/2026.",
+    "expected_behavior": "Agent thực hiện chuỗi suy luận ReAct: gọi academic_query với mã SV2026002 để tra cứu cố vấn học tập, sau đó sử dụng tên cố vấn nhận được để gọi schedule_appointment với thời gian 09:00 ngày 16/09/2026.",
+    "complexity": "High"
+  },
+  {
+    "id": "TC05",
+    "type": "edge_case_handling",
+    "question": "Hãy tra cứu thông tin học vụ của sinh viên SV9999999.",
+    "expected_behavior": "Agent gọi academic_query với mã SV9999999, nhận kết quả NOT_FOUND và phản hồi lịch sự, chính xác, không bịa đặt dữ liệu.",
+    "complexity": "Medium"
+  }
+]

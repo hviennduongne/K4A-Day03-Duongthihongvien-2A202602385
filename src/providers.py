@@ -6,6 +6,7 @@ Hỗ trợ Native Tool Calling và chuyển đổi linh hoạt qua biến môi t
 import os
 import sys
 import json
+import time
 from typing import Dict, Any, List
 from dotenv import load_dotenv
 
@@ -15,7 +16,8 @@ if sys.stdout.encoding != 'utf-8':
     except Exception:
         pass
 
-load_dotenv()
+# Bài lab cấu hình qua .env; ưu tiên file này hơn key cũ terminal đã nạp.
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"), override=True)
 
 class BaseLLMProvider:
     """Interface cơ sở cho các LLM Provider hỗ trợ Native Tool Calling"""
@@ -65,6 +67,24 @@ class GeminiProvider(BaseLLMProvider):
     def __init__(self, api_key: str = None, model: str = None):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
         self.model_name = model or os.getenv("LLM_MODEL") or "gemini-2.5-flash"
+        self._last_request_at = None
+
+    def _generate_content(self, client, **kwargs):
+        """Giãn cách cho hạn mức 5 request/phút của bài lab; thử lại 429 tối đa 2 lần."""
+        for attempt in range(3):
+            if self._last_request_at is not None:
+                wait_seconds = 13.0 - (time.monotonic() - self._last_request_at)
+                if wait_seconds > 0:
+                    print(f"⏳ [Gemini]: Chờ {wait_seconds:.1f}s để giãn cách yêu cầu API.")
+                    time.sleep(wait_seconds)
+            self._last_request_at = time.monotonic()
+            try:
+                return client.models.generate_content(**kwargs)
+            except Exception as exc:
+                if str(getattr(exc, "code", "")) != "429" or attempt == 2:
+                    raise
+                print(f"⏳ [Gemini]: Gặp giới hạn 429. Chờ 60s rồi thử lại ({attempt + 1}/2).")
+                time.sleep(60)
 
     def generate(self, prompt: str, system_prompt: str = "") -> str:
         if not self.api_key or self.api_key == "your_gemini_api_key_here":
@@ -73,15 +93,14 @@ class GeminiProvider(BaseLLMProvider):
             from google import genai
             client = genai.Client(api_key=self.api_key)
             contents = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
-            response = client.models.generate_content(model=self.model_name, contents=contents)
+            response = self._generate_content(client, model=self.model_name, contents=contents)
             return response.text
         except Exception as e:
             return f"[Gemini Exception]: {str(e)}"
 
     def generate_with_tools(self, prompt: str, tools_schema: List[Dict[str, Any]], system_prompt: str = "") -> Dict[str, Any]:
         if not self.api_key or self.api_key == "your_gemini_api_key_here":
-            print("ℹ️ [Gemini Provider]: Chưa tìm thấy GEMINI_API_KEY hợp lệ. Tự động chuyển sang Mock Offline.")
-            return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
+            return {"type": "error", "content": "Chưa cấu hình GEMINI_API_KEY.", "status": "API_ERROR"}
         
         try:
             from google import genai
@@ -107,7 +126,7 @@ class GeminiProvider(BaseLLMProvider):
                 temperature=0.2
             )
 
-            response = client.models.generate_content(
+            response = self._generate_content(client,
                 model=self.model_name,
                 contents=prompt,
                 config=config
@@ -131,8 +150,13 @@ class GeminiProvider(BaseLLMProvider):
                 }
 
         except Exception as e:
-            print(f"⚠️ [Gemini API Warning]: Không thể kết nối live API ({str(e)}). Tự động fallback về Mock.")
-            return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
+            code = str(getattr(e, "code", "UNKNOWN"))
+            detail = str(getattr(e, "message", "") or str(e))
+            if self.api_key:
+                detail = detail.replace(self.api_key, "[REDACTED_API_KEY]")
+            message = f"Gemini API lỗi {code}; chưa hoàn tất yêu cầu. Chi tiết: {detail}"
+            print(f"⚠️ [Gemini API Warning]: {message}")
+            return {"type": "error", "content": message, "status": "API_ERROR"}
 
 
 class OpenAIProvider(BaseLLMProvider):
