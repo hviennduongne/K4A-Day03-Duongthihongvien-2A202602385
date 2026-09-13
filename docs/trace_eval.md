@@ -100,7 +100,7 @@ Dưới đây là ba sự kiện TC04 trích nguyên từ trace: tra cứu sinh 
 - **Số lượt gọi Tool qua MCP Server chính xác:** **5 lượt** — 3 lượt `academic_query` và 2 lượt `schedule_appointment`.
 - **Số sự kiện Waterfall Trace:** **10 sự kiện**.
 - [x] Đã Commit và Push mã nguồn thành công lên GitHub cá nhân (commit bài làm: `d3259a4`).
-- [ ] Đã nộp đường link repository lên LMS VLearn.
+- [x] Đã nộp đường link repository lên LMS VLearn.
 
 | Test Case | Kết quả quan sát | Đánh giá |
 | :--- | :--- | :--- |
